@@ -35,7 +35,7 @@ class LoginViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-         super.viewWillAppear(animated)
+        super.viewWillAppear(animated)
         
         emailTextField.text = ""
         passTextField.text = ""
@@ -97,20 +97,11 @@ class LoginViewController: UIViewController {
             }
             
             Auth.auth().createUser(withEmail: email, password: password) { [weak self] (user, error) in
-                if error == nil {
-                    if user != nil {
-                        self?.displayWarningLabel(withText: "Пользователь уже существует")
-                        return
-                    }
+                guard user != nil else { self?.displayWarningLabel(withText: "Пользователь уже существует")
+                    return
                 }
             }
         }
-        
-        
-        
-        
-        
-        
         
     }
     
