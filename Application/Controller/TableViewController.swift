@@ -7,10 +7,13 @@
 
 import UIKit
 import RealmSwift
+import Firebase
 
-class TableViewController: UITableViewController {
+class TableViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     var works: Results<Work>!
+    
+    @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,15 +27,15 @@ class TableViewController: UITableViewController {
     
 // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return works.isEmpty ? 0 : works.count
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! TableViewCell
         
         cell.labelTitle.text = works[indexPath.row].title
@@ -49,26 +52,41 @@ class TableViewController: UITableViewController {
     @IBAction func unwindSegue( _ segue: UIStoryboardSegue) {
         
         guard let newWorkVC = segue.source as? NewWorkViewController else { return }
-        newWorkVC.saveNewWork()
+        newWorkVC.saveWork()
         tableView.reloadData()
-
     }
     
 // Удаление файлов из базы
-    
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             
             let realm = try! Realm()
             try! realm.write {
                 let work = self.works[indexPath.row]
                 realm.delete(work)
-                self.tableView.reloadData()
+                tableView.reloadData()
             }
         }
     }
-    @IBAction func editWork(_ sender: UIBarButtonItem) {
-        let edit = !self.tableView.isEditing
-        self.tableView.setEditing(edit, animated: true)
+    
+// Сохранение при редактировании
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showDetail" {
+            guard let indexPath = tableView.indexPathForSelectedRow else { return }
+            let work = works[indexPath.row]
+            let newWorkVc = segue.destination as! NewWorkViewController
+            newWorkVc.currentWork = work
+        }
+    }
+    
+// Выход из аккаунта
+    @IBAction func signOutButton(_ sender: UIBarButtonItem) {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print(error.localizedDescription)
+        }
+        dismiss(animated: true)
+        
     }
 }

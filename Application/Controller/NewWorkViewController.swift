@@ -12,6 +12,7 @@ class NewWorkViewController: UITableViewController {
 
 //    var newWork: Details?
     var date: String = ""
+    var currentWork: Work?
     var imageIsChanged = false
     
     @IBOutlet weak var saveButton: UIBarButtonItem!
@@ -31,7 +32,33 @@ class NewWorkViewController: UITableViewController {
         saveButton.isEnabled = false
         
         workTitle.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged) //отслеживание кнопки сохр.
+        setupEditScreen()
 
+    }
+    private func setupEditScreen() {
+        if currentWork != nil {
+            
+            setupNavigationBar()
+            imageIsChanged = true
+            
+            guard let data = currentWork?.imageData,
+                  let image = UIImage(data: data) else { return }
+            
+            workImage.image = image
+            workImage.contentMode = .scaleAspectFill
+            workPrice.text = currentWork?.price
+            workTitle.text = currentWork?.title
+            workMileage.text = currentWork?.milage
+//            Date???
+            
+        }
+    }
+    
+    private func setupNavigationBar() {
+        navigationItem.leftBarButtonItem = nil
+        title = currentWork?.title
+        saveButton.isEnabled = true
+        
     }
     
     //MARK: Table view delegate
@@ -57,7 +84,7 @@ class NewWorkViewController: UITableViewController {
         }
     }
     
-    func saveNewWork() {
+    func saveWork() {
         
         var image: UIImage?
         if imageIsChanged {
@@ -69,9 +96,20 @@ class NewWorkViewController: UITableViewController {
         
 //        guard let dateForm = date else { return }
         
-        let newWork = Work(title: workTitle.text!, price: workPrice.text, date: workPrice.text, milage: date, imageData: imageData)
+        let newWork = Work(title: workTitle.text!, price: workPrice.text, date: date, milage: workMileage.text, imageData: imageData)
         
-        StorageManager.saveObject(newWork)
+        if currentWork != nil {
+            try! realm.write({
+                currentWork?.title = newWork.title
+                currentWork?.price = newWork.price
+                currentWork?.milage = newWork.milage
+                currentWork?.imageData = newWork.imageData
+                currentWork?.date = newWork.date
+            })
+        } else {
+            StorageManager.saveObject(newWork)
+        }
+        
         
     }
     
