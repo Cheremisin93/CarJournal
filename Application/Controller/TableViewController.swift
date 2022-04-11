@@ -21,34 +21,47 @@ class TableViewController: UIViewController, UITableViewDataSource, UITableViewD
         let realm = try! Realm()
         self.works = realm.objects(Work.self)
         
+        tableView.register(UINib(nibName: "CellClassXib", bundle: nil), forCellReuseIdentifier: "CellClassXib")
+        
     }
-    
-    
-    
-// MARK: - Table view data source
-
+    // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return works.isEmpty ? 0 : works.count
     }
-
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 10.0
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        
+        let view:UIView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: self.view.bounds.size.width, height: 10))
+        view.backgroundColor = .clear
+        
+        return view
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! TableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CellClassXib", for: indexPath) as! CellClassXib
         
         cell.labelTitle.text = works[indexPath.row].title
         cell.labelDate.text = works[indexPath.row].date
-        cell.labelMileage.text = works[indexPath.row].milage
+        cell.labelMilage.text = works[indexPath.row].milage
         cell.imageofWork.image = UIImage(data: works[indexPath.row].imageData!)
         
         cell.imageofWork.layer.cornerRadius = cell.imageofWork.frame.size.height / 2
         cell.imageofWork.clipsToBounds = true
+        
+        
         return cell
     }
     
-// Сохранение по кнопке
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showDetail", sender: indexPath.row)
+    }
+
+    // Сохранение по кнопке
     @IBAction func unwindSegue( _ segue: UIStoryboardSegue) {
         
         guard let newWorkVC = segue.source as? NewWorkViewController else { return }
@@ -56,7 +69,7 @@ class TableViewController: UIViewController, UITableViewDataSource, UITableViewD
         tableView.reloadData()
     }
     
-// Удаление файлов из базы
+    // Удаление файлов из базы
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             
@@ -69,7 +82,7 @@ class TableViewController: UIViewController, UITableViewDataSource, UITableViewD
         }
     }
     
-// Сохранение при редактировании
+    // Сохранение при редактировании
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             guard let indexPath = tableView.indexPathForSelectedRow else { return }
@@ -79,7 +92,7 @@ class TableViewController: UIViewController, UITableViewDataSource, UITableViewD
         }
     }
     
-// Выход из аккаунта
+    // Выход из аккаунта
     @IBAction func signOutButton(_ sender: UIBarButtonItem) {
         do {
             try Auth.auth().signOut()

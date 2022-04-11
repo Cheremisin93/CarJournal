@@ -55,7 +55,7 @@ class LoginViewController: UIViewController {
     }
     func displayWarningLabel(withText text: String) {
         warnLabel.text = text
-        UIView.animate(withDuration: 2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut) { [weak self] in
+        UIView.animate(withDuration: 3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut) { [weak self] in
             self?.warnLabel.alpha = 1
         } completion: {[weak self] complete in
             self?.warnLabel.alpha = 0

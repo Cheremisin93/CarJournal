@@ -10,7 +10,7 @@ import RealmSwift
 
 class NewWorkViewController: UITableViewController {
 
-//    var newWork: Details?
+
     var date: String = ""
     var currentWork: Work?
     var imageIsChanged = false
@@ -33,7 +33,7 @@ class NewWorkViewController: UITableViewController {
         
         workTitle.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged) //отслеживание кнопки сохр.
         setupEditScreen()
-
+        
     }
     private func setupEditScreen() {
         if currentWork != nil {
@@ -116,11 +116,10 @@ class NewWorkViewController: UITableViewController {
     
     @IBAction func changeDate(_ sender: UIDatePicker) {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .full
+        dateFormatter.dateStyle = .medium
         
         let dateValue = dateFormatter.string(from: sender.date)
         date = dateValue
-        
     }
     
     @IBAction func cancelAction(_ sender: UIBarButtonItem) {
